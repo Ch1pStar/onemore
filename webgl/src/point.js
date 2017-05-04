@@ -1,35 +1,13 @@
-const genPointTexture = (radius) => {
-  const width = radius*5;
-  const height = radius*5;
-  const rt = PIXI.RenderTexture.create(width, height);
-  const pt = new PIXI.Graphics();
-
-  pt.lineStyle(1);
-  pt.beginFill(0xFFFFFF, 1);
-  pt.drawCircle(radius, radius, radius);
-  pt.endFill();
-  renderer.render(pt, rt);
-
-  return rt;
-}
-let pTexture;
-document.addEventListener('DOMContentLoaded', ()=>{
-    pTexture = genPointTexture(5)
-});
-
 class Point{
 
     constructor(data) {
-        this.sprite = new PIXI.Sprite(pTexture);
-        // this.sprite.anchor.set(0.5);
-
-        this._x = data.x+Math.random()*5;
+        this._x = data.x;
         this._y = data.y;
 
         this.x = data.x;
         this.y = data.y;
 
-        this.pinned = data.pinned;
+        this.pinned = data.pinned || false;
     }
 
     update(){
@@ -75,10 +53,19 @@ class Point{
         this.sprite && (this.sprite.y = val);
     }
 
+    get vertices() {
+        const vertices = new Array(3);
+        vertices[0] = pixelToVertex(this._x, width);
+        vertices[1] = pixelToVertex(this._y, height);
+        vertices[2] = 0; // no 3d
+
+        return vertices;
+    };
+
+
     get x() {return this._x};
     get y() {return this._y};
 
     get oldX() {return this._oldX};
     get oldY() {return this._oldY};
-
 }

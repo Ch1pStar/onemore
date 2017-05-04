@@ -6,8 +6,23 @@ let shaderProgram;
 let vertexPositionAttribute;
 let perspectiveMatrix;
 
+const width = 640.0;
+const height = 480.0;
 
+let drawMode = 2;
+let vCount = 5;
 
+function pixelToVertex(input, end) {
+  const output_end = 2.458;
+  const output_start = -2.458;
+  const input_start = 0.0;
+  const input_end = end;
+
+  slope = (output_end - output_start) / (input_end - input_start)
+  output = output_start + slope * (input - input_start)
+
+  return output;
+}
 
 function initRender() {
   canvas = document.querySelector('#glcanvas');
@@ -28,8 +43,8 @@ function initRender() {
 }
 
 function initWebGL() {
-  // gl = canvas.getContext("experimental-webgl");
-  gl = canvas.getContext("webgl");
+  gl = canvas.getContext("experimental-webgl");
+  // gl = canvas.getContext("webgl");
 }
 
 function initBuffers() {
@@ -74,7 +89,7 @@ function drawScene() {
   // ratio of 640:480, and we only want to see objects between 0.1 units
   // and 100 units away from the camera.
 
-  perspectiveMatrix = makePerspective(45, 640.0/480.0, 0.1, 100.0);
+  perspectiveMatrix = makePerspective(45, width/height, 0.1, 100.0);
 
   // Set the drawing position to the "identity" point, which is
   // the center of the scene.
@@ -92,7 +107,7 @@ function drawScene() {
   gl.bindBuffer(gl.ARRAY_BUFFER, squareVerticesBuffer);
   gl.vertexAttribPointer(vertexPositionAttribute, 3, gl.FLOAT, false, 0, 0);
   setMatrixUniforms();
-  gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
+  gl.drawArrays(drawMode, 0, vCount);
 }
 
 //
