@@ -1,6 +1,7 @@
 class Point{
 
     constructor(data) {
+        this.vertices = [0, 0, 0];
         this._x = data.x;
         this._y = data.y;
 
@@ -8,10 +9,14 @@ class Point{
         this.y = data.y;
 
         this.pinned = data.pinned || false;
+
     }
 
     update(){
-        if(this.pinned) return;
+        if(this.pinned){
+            // console.error('nope');
+            return;
+        }
 
         const vx = (this._x - this._oldX) * friction;
         const vy = (this._y - this._oldY) * friction;
@@ -44,24 +49,16 @@ class Point{
     set x(val) {
         this._oldX = this._x;
         this._x = val;
-        this.sprite && (this.sprite.x = val);
+
+        this.vertices[0] = pixelToVertex(this._x, width);
     }
 
     set y(val) {
         this._oldY = this._y;
         this._y = val;
-        this.sprite && (this.sprite.y = val);
+
+        this.vertices[1] = pixelToVertex(this._y, 0, height);
     }
-
-    get vertices() {
-        const vertices = new Array(3);
-        vertices[0] = pixelToVertex(this._x, width);
-        vertices[1] = pixelToVertex(this._y, height);
-        vertices[2] = 0; // no 3d
-
-        return vertices;
-    };
-
 
     get x() {return this._x};
     get y() {return this._y};

@@ -1,86 +1,142 @@
-let gravity = -.05;
+let gravity = 2;
 // let gravity = 0;
 let friction = .9999;
 // let friction = 1;
 let bounce = .9;
 
+// let ps = [new Point({x:150,y:30}), new Point({x:150,y:50})];
+// let sticks = [new Stick({p0:ps[0], p1:ps[1], l:d(ps[0], ps[1])})];
+
 let ps = [];
 let sticks = [];
 
+let mX = 0;
+let mY = 0;
 
-for(let i=0;i<5;i++){
-  for(let k=0;k<5;k++){
-    createTile(100+(i*50), 100+(k*50));    
-    // createTile(0+(i*50), 0+(k*50));    
-  }
-}
-sticks.push(new Stick({p0: ps[3], p1: ps[16],l: d(ps[3], ps[16])}));
-sticks.push(new Stick({p0: ps[3], p1: ps[87],l: d(ps[3], ps[87])}));
+let pinTop = true;
 
-sticks.push(new Stick({p0: ps[16], p1: ps[97],l: d(ps[16], ps[97])}));
-
-sticks.push(new Stick({p0: ps[97], p1: ps[87],l: d(ps[97], ps[87])}));
-
-sticks.push(new Stick({p0: ps[87], p1: ps[3],l: d(ps[87], ps[3])}));
-
-sticks.push(new Stick({p0: ps[3], p1: ps[97],l: d(ps[3], ps[97])}));
-
-
-function createTile(x, y, width=50, height=50){
-    const points = [];
-
-    // top left, top right, bottom right, bottom left
-    points.push(new Point({x: x, y: y+height}));
-    points.push(new Point({x: x+width, y: y+height}));
-    points.push(new Point({x: x+width, y: y}));
-    points.push(new Point({x: x, y: y}));
-
-    ps = ps.concat(points);
-
-    sticks.push(new Stick({p0: points[0],p1: points[1],l: d(points[0], points[1])}));
-    sticks.push(new Stick({p0: points[1],p1: points[2],l: d(points[1], points[2])}));
-    sticks.push(new Stick({p0: points[2],p1: points[3],l: d(points[2], points[3])}));
-    sticks.push(new Stick({p0: points[3],p1: points[0],l: d(points[3], points[0])}));
-    sticks.push(new Stick({p0: points[0],p1: points[2],l: d(points[0], points[2])}));
-}
-
-
+createCloth();
 vCount = ps.length;
+
 const init = () => {
   initRender();
 
-  drawMode = 2;
 
+  document.querySelector('canvas').addEventListener('mousemove', (e)=>{
+  // document.addEventListener('mousemove', (e)=>{
+    mX = e.clientX;
+    mY = e.clientY;
+
+  });
+
+  // LINE_LOOP = 2
+  // LINE_STRIP = 3
+  // TRIANGLES_STRIP = 5
+
+  drawMode = 3;
 
   const update = (t)=>{
     requestAnimationFrame(update);
 
-    for(let i=0,len=ps.length;i<len;i++){
-      const p = ps[i];
+    updatePoints();
+    ps[ps.length-30].x = mX;
+    ps[ps.length-30].y = mY;
 
-      p.update();
-    }
+    // ps[ps.length-1].x = mX;
+    // ps[ps.length-1].y = mY;
 
-    for(let i=0,len=sticks.length;i<len;i++){
-      for(let k=0;k<4;k++){
-        sticks[i].update();
-      }
-    }
+    updateSticks();
 
-    let vertices = [];
-    for(let i=0,len=ps.length;i<len;i++){
-      const p = ps[i];
-
-      vertices = vertices.concat(p.vertices);
-    }
-
-    uploadData(vertices);
-    
+    uploadPointVertices();
   }
 
   update(performance.now());
 }
 
+function createCloth() {
+  const width = 20;
+  const height = 10;
+
+  const pointDistX = 25;
+  const pointDistY = 25;
+
+  const pointOffsetX = 150;
+  // const pointOffsetY = -450;
+  const pointOffsetY = 250;
+
+  ps = new Array(width*height);
+
+  for(let y=0;y<height;y++){
+    for(let x=0;x<width;x++){
+      const p1 = new Point({x:(x*pointDistX)+pointOffsetX, y:((-y)*pointDistY)+pointOffsetY});
+
+      const invert = height-y-1; //inverts y axis
+
+      if (invert == 0 && pinTop){
+        p1.pinned = true;
+      }
+      const index = (invert*width)+x;
+      ps[index] = p1;
+
+      // console.log(`invert(${invert}) * y(${y}) + x(${x}) = ${ index }`);
+     }
+  }
+
+  let q = 0;
+
+  for(let y=0;y<height;y++){
+    for(let x=0;x<width;x++){
+      const invert = height-y-1; //inverts y axis
+
+      //link upward
+      if(y != 0) { //skip top row
+        const p0 = ps[invert*width+x];
+        const p1 = ps[(invert+1)*width+x];
+
+        sticks[q] = new Stick({p0:p0, p1: p1, l:d(p0, p1)});
+        q++;
+      }
+
+      //link leftward (is that a word?)
+      if(x != 0) { //skip left edge
+        const p0 = ps[invert*width+x];
+        const p1 = ps[invert*width+x-1];
+
+        sticks[q] = new Stick({p0:p0, p1: p1, l:d(p0, p1)});;
+        q++;
+      }
+    }
+  }
+}
+
+function updatePoints() {
+  for(let i=0,len=ps.length;i<len;i++){
+    const p = ps[i];
+
+    p.update();
+  }
+}
+
+function updateSticks() {
+  for(let k=0;k<8;k++){
+    for(let i=0,len=sticks.length;i<len;i++){
+        sticks[i].update();
+    }
+  }
+}
+
+function uploadPointVertices() {
+  let vertices = [];
+
+  for(let i=0,len=ps.length;i<len;i++){
+    const p = ps[i];
+
+    vertices = vertices.concat(p.vertices);
+  }
+
+  // vCount = ps.length;
+  uploadData(vertices);
+}
 
 function d(p0, p1){
     const dx = p1.x - p0.x;
@@ -88,7 +144,5 @@ function d(p0, p1){
 
     return Math.sqrt(dx * dx + dy * dy);
 }
-
-
 
 document.addEventListener('DOMContentLoaded', init);

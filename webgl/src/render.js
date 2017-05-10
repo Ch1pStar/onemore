@@ -12,10 +12,10 @@ const height = 480.0;
 let drawMode = 2;
 let vCount = 5;
 
-function pixelToVertex(input, end) {
+function pixelToVertex(input, end, start = 0.0) {
   const output_end = 2.458;
   const output_start = -2.458;
-  const input_start = 0.0;
+  const input_start = start;
   const input_end = end;
 
   slope = (output_end - output_start) / (input_end - input_start)
@@ -78,8 +78,10 @@ function uploadData(vertices) {
 //
 // Draw the scene.
 //
-function drawScene() { 
+function drawScene() {
   requestAnimationFrame(drawScene);
+
+  if(!vCount) return;
 
   // Clear the canvas before we start drawing on it.
   gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);

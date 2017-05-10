@@ -33,8 +33,11 @@ class Point{
     }
 
     update(){
-        if(this.pinned) return;
-
+        if(this.pinned){
+            console.error('nope');
+            return;
+        }
+        
         const vx = (this._x - this._oldX) * friction;
         const vy = (this._y - this._oldY) * friction;
 
