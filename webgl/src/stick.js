@@ -15,7 +15,7 @@ class Stick {
       let distance = Math.sqrt(dx * dx + dy * dy);
 
       let difference = this.length - distance;
-      let percent = difference / distance / 2;
+      let percent = difference / distance / 20;
 
       let offsetX = dx * percent;
       let offsetY = dy * percent;

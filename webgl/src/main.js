@@ -22,8 +22,8 @@ const init = () => {
   initRender();
 
 
-  document.querySelector('canvas').addEventListener('mousemove', (e)=>{
-  // document.addEventListener('mousemove', (e)=>{
+  // document.querySelector('canvas').addEventListener('mousemove', (e)=>{
+  document.addEventListener('mousemove', (e)=>{
     mX = e.clientX;
     mY = e.clientY;
 
@@ -33,7 +33,7 @@ const init = () => {
   // LINE_STRIP = 3
   // TRIANGLES_STRIP = 5
 
-  drawMode = 3;
+  drawMode = 5;
 
   const update = (t)=>{
     requestAnimationFrame(update);
